@@ -14,9 +14,8 @@ from database.db import Base, get_db
 
 class Trader(Base):
     __tablename__ = "traders"
-
-    id = Column(Integer, primary_key=True, index=True)
-    trader_id = Column(String, unique=True, index=True)
+    
+    trader_id = Column(String, primary_key=True, index=True)
     name = Column(String, index=True)
     username = Column(String, unique=True, index=True)
     profile_picture = Column(String, nullable=True)

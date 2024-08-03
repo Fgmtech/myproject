@@ -13,7 +13,7 @@ router = APIRouter()
 # Example in-memory database
 students_db: Dict[str, Student] = {}
 
-@router.post("/register-student/")
+@router.post("/register_student/")
 async def register_student(
     student_id: str = Form(...),
     name: str = Form(...),

@@ -95,28 +95,31 @@
     #uvicorn.run(app, host="127.0.0.1", port=8000)
 
 
-from fastapi import FastAPI, File, UploadFile, Form, HTTPException
+from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Depends
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import Optional, Dict
 from database.db import engine, Base
-from routers import register_student_router, trader_profile_router, register_buyer_seller_router
-from models.register_buyer_seller import User
+from routers import register_student_router, trader_profile_router, register_buyer_seller_router, product_router
+from database.db import Base, get_db
+from sqlalchemy.orm import sessionmaker, Session
+
 
 
 
 app = FastAPI()
 
+
+Base.metadata.create_all(bind=engine)
 Base.metadata.create_all(bind=engine)
 
 app.include_router(register_student_router.router)
 app.include_router(trader_profile_router.router)
 app.include_router(register_buyer_seller_router.router, prefix="/user", tags=["user"])
+app.include_router(product_router.router)
 
 
-@app.get("/")
-def read_root():
-    return {"message": "route /docs for campus trade"}
+
 
 
 

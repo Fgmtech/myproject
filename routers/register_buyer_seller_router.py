@@ -3,22 +3,18 @@ from fastapi import APIRouter, HTTPException, Form, Depends
 from sqlalchemy.orm import Session
 from database.db import get_db
 from models.register_buyer_seller import User
-
-
 from pydantic import BaseModel
 
 class UserCreate(BaseModel):
-    first_name: str
-    last_name: str
-    ID_number: str
+    full_name: str
+    user_id: str
     password: str
-    role: str  # Add role field
+    buyer_or_seller: str  # Add role field
 
 class UserResponse(BaseModel):
-    first_name: str
-    last_name: str
-    ID_number: str
-    role: str  # Add role field
+    full_name: str
+    user_id: str
+    buyer_or_seller: str  # Add role field
 
     class Config:
         orm_mode = True
@@ -29,22 +25,22 @@ router = APIRouter()
 
 @router.post("/register/", response_model=UserResponse)
 async def create_user(
-    first_name: str = Form(...),
-    last_name: str = Form(...),
-    ID_number: str = Form(...),
+    full_name: str = Form(...),
+    user_id: str = Form(...),
     password: str = Form(...),
-    role: str = Form(...),  # Add role field
+    buyer_or_seller: str = Form(...),  # Add role field
     db: Session = Depends(get_db)
 ):
-    if db.query(User).filter(User_ID_number == ID_number).first():
-        raise HTTPException(status_code=400, detail="ID number already registered")
+     # Check if user ID is already registered
+    user = db.query(User).filter(User.user_id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=400, detail="User ID already registered")
 
     new_user = User(
-        first_name=first_name,
-        last_name=last_name,
-        ID_number=ID_number,
+        full_name=full_name,
+        user_id=user_id,
         password=password,
-        role=role  # Set role
+        buyer_or_seller=buyer_or_seller  # Set role
     )
 
     db.add(new_user)
@@ -55,11 +51,16 @@ async def create_user(
 
 @router.post("/login/", response_model=UserResponse)
 async def login_user(
-    ID_number: str = Form(...),
+    user_id: str = Form(...),
     password: str = Form(...),
     db: Session = Depends(get_db)
 ):
-    user = db.query(User).filter(User_ID_number == ID_number).first()
-    if not user or user_password != password:
-        raise HTTPException(status_code=401, detail="Invalid ID number or password")
+    
+    
+    user = db.query(User).filter(User.user_id == user_id).first()
+    
+    # Check if user exists and password matches
+    if not user or user.password != password:
+        raise HTTPException(status_code=401, detail="Invalid user ID or password")
+    
     return user
